@@ -1,8 +1,11 @@
 import express from "express";
 import { getEmployee, getEmployees, getRandomEmployee } from "#db/employees";
+import employees from "#db/employees";
 
 const app = express();
 export default app;
+
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello employees!");
@@ -32,4 +35,23 @@ app.get("/employees/:id", (req, res) => {
   }
 
   res.send(employee);
+});
+
+app.post("/employees", (req, res) => {
+  if (!req.body || !req.body.name)
+    res.status(400).send("Missing request body.");
+  else {
+    const { name } = req.body;
+    console.log("name", name);
+    // if (!name) res.status(400).send("Missing employee name.");
+    const employee = { id: employees.length + 1, name };
+    employees.push(employee);
+    res.status(201).send(employee);
+    // res.status(201).send("employee");
+  }
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
 });
